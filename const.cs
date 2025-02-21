@@ -4,7 +4,7 @@
 
 //---------------------------------------------------------------------------
 //
-// Description: LocBaml command line tool. 
+// Description: LocBaml command line tool.
 //
 //---------------------------------------------------------------------------
 
@@ -43,13 +43,13 @@ namespace BamlLocalization
                     break;
                 }
             }
-            
+
             return delimiter;
         }
 
         internal static bool IsValidCultureName(string name)
         {
-            try 
+            try
             {
                 // try create a culture to see if the name is a valid culture name
                 CultureInfo culture = new CultureInfo(name);
@@ -95,7 +95,7 @@ namespace BamlLocalization
                 name,
                 className,
                 propertyName
-                );            
+                );
         }
-    }    
+    }
 }

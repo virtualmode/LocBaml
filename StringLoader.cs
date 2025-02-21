@@ -3,15 +3,14 @@
 // See the LICENSE file in the project root for more information.
 
 //-------------------------------------------------------------------------------
-// Description: String Loader class, loading strings from StringTable Resource. 
+// Description: String Loader class, loading strings from StringTable Resource.
 //-------------------------------------------------------------------------------
-
 
 using System;
 using System.Resources;
 using System.Globalization;
 
-namespace BamlLocalization 
+namespace BamlLocalization
 {
     internal class StringLoader
     {
@@ -25,10 +24,10 @@ namespace BamlLocalization
                  {
                      message = String.Format(CultureInfo.CurrentCulture, message, args);
                  }
-             }             
+             }
              return message;
          }
          // Get exception string resources for current locale
         private static ResourceManager _resourceManager = new ResourceManager("Resources.StringTable", typeof(StringLoader).Assembly);
-    }//endof class StringLoader    
+    }//endof class StringLoader
 }//endof namespace

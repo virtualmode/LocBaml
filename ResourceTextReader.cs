@@ -12,10 +12,7 @@
 using System;
 using System.IO;
 using System.Text;
-using System.Resources;
 using System.Collections;
-using System.Globalization;
-using System.Diagnostics;
 
 namespace BamlLocalization
 {
@@ -31,7 +28,7 @@ namespace BamlLocalization
                 throw new ArgumentNullException("stream");
 
             _reader = new StreamReader(stream);
-        }    
+        }
 
         internal bool ReadRow()
         {
@@ -42,19 +39,19 @@ namespace BamlLocalization
             {
                 // nothing else to read
                 return false;
-            }        
+            }
             
             ReadState currentState = ReadState.TokenStart;
-            _columns = new ArrayList();            
+            _columns = new ArrayList();
 
             StringBuilder buffer = new StringBuilder();
-            
+
             while (currentState != ReadState.LineEnd)
             {
                 switch(currentState)
                 {
                     // start of a token
-                    case ReadState.TokenStart:                        
+                    case ReadState.TokenStart:
                     {
                         if (currentChar == _delimiter)
                         {
@@ -73,16 +70,16 @@ namespace BamlLocalization
                         {
                             // we see a '\n' or '\r\n' sequence. Go to LineEnd
                             // ignore these chars
-                            currentState = ReadState.LineEnd;                            
+                            currentState = ReadState.LineEnd;
                         }
                         else 
                         {
                             // safe to say that this is part of a unquoted content
                             buffer.Append((Char) currentChar);
-                            currentState = ReadState.UnQuotedContent;                            
-                        }                        
+                            currentState = ReadState.UnQuotedContent;
+                        }
                         break;
-                    }         
+                    }
 
                     // inside of an unquoted content
                     case ReadState.UnQuotedContent :
@@ -104,19 +101,18 @@ namespace BamlLocalization
                         else
                         {
                             // we are good. store this char
-                            // notice, even we see a '\"', we will just treat it like 
+                            // notice, even we see a '\"', we will just treat it like
                             // a normal char
-                            buffer.Append((Char) currentChar);                            
+                            buffer.Append((Char) currentChar);
                         }
-                        break;                        
-                    }         
+                        break;
+                    }
 
                     // inside of a quoted content
                     case ReadState.QuotedContent :
                     {
                         if (currentChar ==  '\"')
-                        {   
-                        
+                        {
                             // now it depends on whether the next char is quote also
                             if (_reader.Peek() == '\"')
                             {
@@ -128,16 +124,16 @@ namespace BamlLocalization
                             {   // we have a single quote. We fall back to unquoted content state
                                 // and igorne the curernt quote
                                 currentState = ReadState.UnQuotedContent;
-                            }                            
+                            }
                         }
                         else 
                         {
                             // we are still inside of a quote, anything is accepted
-                            buffer.Append((Char) currentChar);                                                       
+                            buffer.Append((Char) currentChar);
                         }
-                        break;                           
-                    }         
-                }                
+                        break;
+                    }
+                }
 
                 // read in the next char
                 currentChar = _reader.Read();
@@ -147,7 +143,7 @@ namespace BamlLocalization
                     // break out of the state machine if we reach the end of the file
                     break;
                 }
-            }   
+            }
 
             // we got to here either we are at LineEnd, or we are end of file
             if (buffer.Length > 0)
@@ -215,15 +211,15 @@ namespace BamlLocalization
                     _reader.Read();
 
                     // and continue
-                    continue;   
+                    continue;
                 }
-                else 
+                else
                 {
                     // stop here
                     break;
                 }
             }
-            return _char;            
+            return _char;
         }
         
 
@@ -232,7 +228,7 @@ namespace BamlLocalization
         private ArrayList  _columns;    // An arraylist storing all the columns of a row
 
         /// <summary>
-        /// Enum representing internal states of the reader when reading 
+        /// Enum representing internal states of the reader when reading
         /// the CSV or tab-separated TXT file
         /// </summary>
         private enum ReadState
@@ -240,7 +236,7 @@ namespace BamlLocalization
             /// <summary>
             /// State in which the reader is at the start of a column
             /// </summary>
-            TokenStart, 
+            TokenStart,
 
             /// <summary>
             /// State in which the reader is reading contents that are quoted
@@ -255,8 +251,8 @@ namespace BamlLocalization
             /// <summary>
             /// State in which the end of a line is reached
             /// </summary>
-            LineEnd,                
+            LineEnd,
         }
-        
+
     }
 }

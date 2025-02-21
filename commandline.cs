@@ -4,22 +4,15 @@
 
 //---------------------------------------------------------------------------
 //
-// Description: LocBaml command line parsing tool. 
+// Description: LocBaml command line parsing tool.
 //
 //---------------------------------------------------------------------------
 
-
 using System;
-using System.IO;
-using System.Runtime.InteropServices;
-using System.Reflection;
-using System.Reflection.Emit;
-using System.Collections;
 using System.Globalization;
 
 namespace BamlLocalization 
 {
-
     internal class Option
     {
         private String m_strName;

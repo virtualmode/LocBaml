@@ -11,7 +11,6 @@
 using System;
 using System.IO;
 using System.Globalization;
-using System.Runtime.InteropServices;
 using System.Collections;
 using System.Reflection;
 using System.Diagnostics;
@@ -26,7 +25,7 @@ namespace BamlLocalization
     {
         /// <summary>
         /// constructor
-        /// </summary>        
+        /// </summary>
         internal InputBamlStreamList(LocBamlOptions options)
         {
             _bamlStreams  = new ArrayList();
@@ -51,7 +50,7 @@ namespace BamlLocalization
                     }
                     break;
                 }
-		case FileType.EXE:
+                case FileType.EXE:
                 case FileType.DLL:
                 {
                     // for a dll, it is the same idea
@@ -65,13 +64,13 @@ namespace BamlLocalization
                         {
                             continue;   // in resource assembly, we don't have resource that is contained in another assembly
                         }
- 
+
                         Stream resourceStream = assembly.GetManifestResourceStream(resourceName);
                         using (ResourceReader reader = new ResourceReader(resourceStream))
                         {
-                            EnumerateBamlInResources(reader, resourceName);                              
+                            EnumerateBamlInResources(reader, resourceName);
                         }
-                    }                    
+                    }
                     break;
                 }
                 default:
@@ -79,8 +78,8 @@ namespace BamlLocalization
                     
                     Debug.Assert(false, "Not supported type");
                     break;
-                }                    
-            }                  
+                }
+            }
         }
 
         /// <summary>
@@ -93,7 +92,7 @@ namespace BamlLocalization
 
         /// <summary>
         /// Gets the baml stream in the input file through indexer
-        /// </summary>        
+        /// </summary>
         internal BamlStream this[int i]
         {
             get { return (BamlStream) _bamlStreams[i];}
@@ -107,7 +106,7 @@ namespace BamlLocalization
             for (int i = 0; i < _bamlStreams.Count; i++)
             {
                ((BamlStream) _bamlStreams[i]).Close();
-            }            
+            }
         }
 
         //--------------------------------
@@ -115,9 +114,9 @@ namespace BamlLocalization
         //--------------------------------
         /// <summary>
         /// Enumerate baml streams in a resources file
-        /// </summary>        
+        /// </summary>
         private void EnumerateBamlInResources(ResourceReader reader, string resourceName)
-        {                       
+        {
             foreach (DictionaryEntry entry in reader)
             {
                 string name = entry.Key as string;
@@ -129,7 +128,7 @@ namespace BamlLocalization
                             (Stream) entry.Value
                         )
                     );
-                }    
+                }
             }
         }
         
@@ -152,11 +151,11 @@ namespace BamlLocalization
             _name = name;
             _stream = stream;
         }
-        
+
         /// <summary>
-        /// name of the baml 
+        /// name of the baml
         /// </summary>
-        internal string Name 
+        internal string Name
         { 
             get { return _name;}
         }
@@ -177,7 +176,7 @@ namespace BamlLocalization
             if (_stream != null)
             {
                 _stream.Close();
-            }           
+            }
         }
 
         /// <summary>
@@ -187,24 +186,24 @@ namespace BamlLocalization
         {             
             string extension = Path.GetExtension(name);
             if (string.Compare(
-                    extension, 
-                    "." + FileType.BAML.ToString(), 
-                    true, 
+                    extension,
+                    "." + FileType.BAML.ToString(),
+                    true,
                     CultureInfo.InvariantCulture
                     ) == 0
-                )                            
+                )
             {
                    //it has .Baml at the end
                 Type type = value.GetType();
 
                 if (typeof(Stream).IsAssignableFrom(type))
                 return true;
-            }            
-            return false;                
+            }
+            return false;
         }
 
         /// <summary>
-        /// Combine baml stream name and resource name to uniquely identify a baml within a 
+        /// Combine baml stream name and resource name to uniquely identify a baml within a
         /// localization project
         /// </summary>
         internal static string CombineBamlStreamName(string resource, string bamlName)

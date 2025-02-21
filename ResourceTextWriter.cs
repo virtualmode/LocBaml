@@ -12,15 +12,11 @@
 using System;
 using System.IO;
 using System.Text;
-using System.Resources;
-using System.Collections;
-using System.Globalization;
-using System.Diagnostics;
 
 namespace BamlLocalization
-{    
+{
     /// <summary>
-    /// the class that writes to a text file either tab delimited or comma delimited. 
+    /// the class that writes to a text file either tab delimited or comma delimited.
     /// </summary>
     internal sealed class ResourceTextWriter : IDisposable
     {
@@ -29,14 +25,13 @@ namespace BamlLocalization
         //-------------------------------
         internal ResourceTextWriter(FileType fileType, Stream output)
         {
-            
             _delimiter = LocBamlConst.GetDelimiter(fileType);
 
             if (output == null)
                 throw new ArgumentNullException("output");
 
             // show utf8 byte order marker
-            UTF8Encoding encoding = new UTF8Encoding(true);           
+            UTF8Encoding encoding = new UTF8Encoding(true);
             _writer      = new StreamWriter(output, encoding);
             _firstColumn = true;
        }
@@ -46,7 +41,7 @@ namespace BamlLocalization
        // Internal methods
         //-----------------------------------
         internal void WriteColumn(string value)
-        {    
+        {
             if (value == null)
                     value = string.Empty;
 
@@ -66,7 +61,7 @@ namespace BamlLocalization
                     if (value[i] == '\"')
                     {
                         builder.Append('\"');
-                    }                       
+                    }
                 }
 
                 // put in the closing quote
@@ -78,14 +73,14 @@ namespace BamlLocalization
             {
                 // if we are not the first column, we write delimeter
                 // to seperate the new cell from the previous ones.
-                _writer.Write(_delimiter);                
+                _writer.Write(_delimiter);
             }
             else
             {
-                _firstColumn = false;   // set false
+                _firstColumn = false; // set false
             }
 
-            _writer.Write(value);            
+            _writer.Write(value);
         }
 
         internal void EndLine()
@@ -93,7 +88,7 @@ namespace BamlLocalization
             // write a new line
             _writer.WriteLine();
 
-            // set first column to true    
+            // set first column to true
             _firstColumn = true;
         }
         internal void Close()
@@ -113,14 +108,8 @@ namespace BamlLocalization
         
         #region private members
         private char        _delimiter;
-        private TextWriter  _writer;        
+        private TextWriter  _writer;
         private bool        _firstColumn;
         #endregion
-    }    
+    }
 }
-
-
-
-
-
-    

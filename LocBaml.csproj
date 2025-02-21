@@ -1,15 +1,26 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net472</TargetFramework>
-    <TargetType>exe</TargetType>
+    <TargetFramework>net6.0-windows</TargetFramework>
+    <OutputType>Exe</OutputType>
     <UseWPF>true</UseWPF>
-   </PropertyGroup>
+    <Version>1.1.0</Version>
+  </PropertyGroup>
 
-   <ItemGroup>
-        <EmbeddedResource Include="Resources\StringTable.resText">
-            <LogicalName>Resources.StringTable.resources</LogicalName>
-        </EmbeddedResource>
-   </ItemGroup>
+  <PropertyGroup Label="Publish">
+    <EnableCompressionInSingleFile>false</EnableCompressionInSingleFile>
+    <IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
+    <PublishReadyToRun>true</PublishReadyToRun>
+    <PublishReadyToRunEmitSymbols>false</PublishReadyToRunEmitSymbols>
+    <PublishSingleFile>true</PublishSingleFile>
+    <PublishTrimmed>false</PublishTrimmed>
+    <SelfContained>false</SelfContained>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\StringTable.resText">
+      <LogicalName>Resources.StringTable.resources</LogicalName>
+    </EmbeddedResource>
+  </ItemGroup>
 
 </Project>

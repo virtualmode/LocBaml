@@ -4,7 +4,7 @@
 
 //---------------------------------------------------------------------------
 //
-// Description: LocBaml command line tool. 
+// Description: LocBaml command line tool.
 //
 //---------------------------------------------------------------------------
 
@@ -12,11 +12,8 @@ using System;
 using System.IO;
 using System.Collections;
 using System.Globalization;
-using System.Diagnostics;
-using System.Threading;
 using System.Reflection;
 using System.Security;
-using System.Windows;
 using System.Windows.Threading;
 
 namespace BamlLocalization
@@ -26,7 +23,7 @@ namespace BamlLocalization
     /// </summary>
     public static class LocBaml
     {
-        private const int ErrorCode = 100;        
+        private const int ErrorCode = 100;
         private const int SuccessCode = 0;
         private static Dispatcher _dispatcher;
 
@@ -42,21 +39,21 @@ namespace BamlLocalization
 
             if (errorMessage != null)
             {
-                // there are errors                
+                // there are errors
                 PrintLogo(options);
-                Console.WriteLine(StringLoader.Get("ErrorMessage", errorMessage));                
+                Console.WriteLine(StringLoader.Get("ErrorMessage", errorMessage));
                 Console.WriteLine();
                 PrintUsage();
-                return ErrorCode;    // error
-            }          
+                return ErrorCode; // error
+            }
 
-             // at this point, we obtain good options.
-            if (options == null)            
+            // at this point, we obtain good options.
+            if (options == null)
             {
                 // no option to process. Noop.
                 return SuccessCode;
             }
-            
+
             _dispatcher = Dispatcher.CurrentDispatcher;
 
             PrintLogo(options);
@@ -72,74 +69,91 @@ namespace BamlLocalization
                     GenerateBamlResources(options);
                 }
             }
-            catch(Exception e)                
+            catch(Exception ex)
             {
+                //Console.WriteLine(ex.Message);
 #if DEBUG
-                throw e;
+                //throw ex;
 #else
-                Console.WriteLine(e.Message);
-                return ErrorCode;            
+                return ErrorCode;
 #endif
             }
 
             return SuccessCode;
-        
-        }        
+        }
 
-         #region Private static methods
+        public static Assembly? CurrentDomain_AssemblyResolve(object? sender, ResolveEventArgs args)
+        {
+            // TODO: We might wanna give the users an ability to provide a custom assembly in case they've forgotten
+            string assembly = args.Name.Substring(0, args.Name.IndexOf(',')) + ".dll";
+            try
+            {
+                if (File.Exists(assembly))
+                    return Assembly.LoadFile(Path.Join(Directory.GetCurrentDirectory(), assembly));
+                else
+                    Console.WriteLine("Assembly '" + assembly + "' does not exist.");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
+            return null;
+        }
+
+        #region Private static methods
         //---------------------------------------------
         // Private static methods
         //---------------------------------------------
 
         /// <summary>
         /// Parse the baml resources given in the command line
-        /// </summary>        
+        /// </summary>
         private static void ParseBamlResources(LocBamlOptions options)
-        {            
-            TranslationDictionariesWriter.Write(options);         
+        {
+            TranslationDictionariesWriter.Write(options);
         }
 
         /// <summary>
-        /// Genereate localized baml 
-        /// </summary>        
+        /// Genereate localized baml
+        /// </summary>
         private static void GenerateBamlResources(LocBamlOptions options)
-        {   
+        {
             Stream input = File.OpenRead(options.Translations);
             using (ResourceTextReader reader = new ResourceTextReader(options.TranslationFileType, input))
-            {   
-                TranslationDictionariesReader dictionaries = new TranslationDictionariesReader(reader);                                                               
+            {
+                TranslationDictionariesReader dictionaries = new TranslationDictionariesReader(reader);
                 ResourceGenerator.Generate(options, dictionaries);
-            }         
+            }
         }
-            
+
         /// <summary>
         /// get CommandLineOptions, return error message
         /// </summary>
         private static void GetCommandLineOptions(string[] args, out LocBamlOptions options, out string errorMessage)
         {
-            CommandLine commandLine; 
+            CommandLine commandLine;
             try{
-                // "*" means the option must have a value. no "*" means the option can't have a value 
-                 commandLine = new CommandLine(args, 
-                                    new string[]{
-                                            "parse",        // /parse for update
-                                            "generate",     // /generate     for generate
-                                            "*out",         // /out          for output .csv|.txt when parsing, for output directory when generating
-                                            "*culture",     // /culture      for culture name
-                                            "*translation", // /translation  for translation file, .csv|.txt
-                                            "*asmpath",     // /asmpath,     for assembly path to look for references   (
-                                            "nologo",       // /nologo       for not to print logo      
-                                            "help",         // /help         for help
-                                            "verbose"       // /verbose      for verbose output         
-                                        }                
-                                     );
-           }            
-           catch (ArgumentException e)
-           {
-               errorMessage = e.Message;
-               options      = null;
-               return;
-           }
+                // "*" means the option must have a value. no "*" means the option can't have a value
+                commandLine = new CommandLine(args,
+                    new string[]{
+                        "parse",        // /parse for update
+                        "generate",     // /generate     for generate
+                        "*out",         // /out          for output .csv|.txt when parsing, for output directory when generating
+                        "*culture",     // /culture      for culture name
+                        "*translation", // /translation  for translation file, .csv|.txt
+                        "*asmpath",     // /asmpath,     for assembly path to look for references   (
+                        "nologo",       // /nologo       for not to print logo
+                        "help",         // /help         for help
+                        "verbose"       // /verbose      for verbose output
+                    }
+                );
+            }
+            catch (ArgumentException e)
+            {
+                errorMessage = e.Message;
+                options      = null;
+                return;
+            }
 
             if (commandLine.NumArgs + commandLine.NumOpts < 1)
             {
@@ -168,7 +182,7 @@ namespace BamlLocalization
                 }
                 else if (commandLineOption.Name == "nologo")
                 {
-                    options.HasNoLogo = true;                        
+                    options.HasNoLogo = true;
                 }
                 else if (commandLineOption.Name == "help")
                 {
@@ -222,13 +236,13 @@ namespace BamlLocalization
             }
 
             // we passed all the test till here. Now check the combinations of the options
-            errorMessage = options.CheckAndSetDefault();       
+            errorMessage = options.CheckAndSetDefault();
         }
 
         private static void PrintLogo(LocBamlOptions option)
         {
             if (option == null || !option.HasNoLogo)
-            {               
+            {
                 Console.WriteLine(StringLoader.Get("Msg_Copyright", GetAssemblyVersion()));
             }
         }
@@ -236,29 +250,25 @@ namespace BamlLocalization
         private static void PrintUsage()
         {
             Console.WriteLine(StringLoader.Get("Msg_Usage"));
-        }         
-
+        }
 
         private static string GetAssemblyVersion()
         {
-            Assembly currentAssembly = Assembly.GetExecutingAssembly();                                   
+            Assembly currentAssembly = Assembly.GetExecutingAssembly();
             return currentAssembly.GetName().Version.ToString(4);
         }
         
          #endregion
     }
 
-
-
-
     #region LocBamlOptions
     // the class that groups all the baml options together
     internal sealed class LocBamlOptions
     {    
         internal string         Input;
-        internal string         Output;        
+        internal string         Output;
         internal CultureInfo    CultureInfo;
-        internal string         Translations;        
+        internal string         Translations;
         internal bool           ToParse;
         internal bool           ToGenerate;
         internal bool           HasNoLogo;
@@ -272,7 +282,7 @@ namespace BamlLocalization
         /// return true if the operation succeeded.
         /// otherwise, return false
         /// </summary>
-        internal  string  CheckAndSetDefault()
+        internal string CheckAndSetDefault()
         {
             // we validate the options here and also set default
             // if we can
@@ -284,13 +294,13 @@ namespace BamlLocalization
                 (!ToParse && !ToGenerate))
                 return StringLoader.Get("MustChooseOneAction");
 
-            // Rule #2: Must have an input 
+            // Rule #2: Must have an input
             if (string.IsNullOrEmpty(Input))
             {
                 return StringLoader.Get("InputFileRequired");
             }
             else
-            {                
+            {
                 if (!File.Exists(Input))
                 {
                     return StringLoader.Get("FileNotFound", Input);
@@ -305,7 +315,7 @@ namespace BamlLocalization
                 }
                 else if (string.Compare(extension, "." + FileType.RESOURCES.ToString(), true, CultureInfo.InvariantCulture) == 0)
                 {
-                    InputType = FileType.RESOURCES;                    
+                    InputType = FileType.RESOURCES;
                 }
                 else if (string.Compare(extension, "." + FileType.DLL.ToString(), true, CultureInfo.InvariantCulture) == 0)
                 {
@@ -318,9 +328,9 @@ namespace BamlLocalization
                 else
                 {
                     return StringLoader.Get("FileTypeNotSupported", extension);
-                }                                
+                }
             }
-            
+
             if (ToGenerate)
             {
                 // Rule #3: before generation, we must have Culture string
@@ -329,7 +339,7 @@ namespace BamlLocalization
                     // if we are not generating baml, 
                     return StringLoader.Get("CultureNameNeeded", InputType.ToString());
                 }
-                
+
                 // Rule #4: before generation, we must have translation file
                 if (string.IsNullOrEmpty(Translations))
                 {
@@ -358,27 +368,25 @@ namespace BamlLocalization
                 }
             }
 
-            
-
             // Rule #5: If the output file name is empty, we act accordingly
             if (string.IsNullOrEmpty(Output))
             {
                 // Rule #5.1: If it is parse, we default to [input file name].csv
                 if (ToParse)
                 {
-                    string fileName = Path.GetFileNameWithoutExtension(Input);                    
+                    string fileName = Path.GetFileNameWithoutExtension(Input);
                     Output = fileName + "." + FileType.CSV.ToString();
                     TranslationFileType = FileType.CSV;
                 }
-                else  
+                else
                 {
                     // Rule #5.2: If it is generating, and the output can't be empty
                     return StringLoader.Get("OutputDirectoryNeeded");
                 }
-                
+
             }else
-            {                
-                // output isn't null, we will determind the Output file type                
+            {
+                // output isn't null, we will determind the Output file type
                 // Rule #6: if it is parsing. It will be .csv or .txt.
                 if (ToParse)
                 {
@@ -404,8 +412,8 @@ namespace BamlLocalization
                     {
                         TranslationFileType = FileType.CSV;
                         Output = outputDir  
-                               + Path.DirectorySeparatorChar 
-                               + Path.GetFileName(Input) 
+                               + Path.DirectorySeparatorChar
+                               + Path.GetFileName(Input)
                                + "." 
                                + TranslationFileType.ToString();
                     }
@@ -424,11 +432,11 @@ namespace BamlLocalization
                             // just consider the output as txt format if it doesn't have .csv extension
                             TranslationFileType = FileType.TXT;
                         }
-                    }                    
+                    }
                 }
                 else
                 {
-                    // it is to generate. And Output should point to the directory name.                    
+                    // it is to generate. And Output should point to the directory name.
                     if (!Directory.Exists(Output))
                         return StringLoader.Get("OutputDirectoryError", Output);
                 }
@@ -448,11 +456,11 @@ namespace BamlLocalization
                     }
                     catch (ArgumentException argumentError)
                     {
-                        errorMsg = argumentError.Message;   
+                        errorMsg = argumentError.Message;
                     }
                     catch (BadImageFormatException formatError)
                     {
-                        errorMsg = formatError.Message;   
+                        errorMsg = formatError.Message;
                     }
                     catch (FileNotFoundException fileError)
                     {
@@ -472,13 +480,12 @@ namespace BamlLocalization
                     {
                         return errorMsg; // return error message when loading this assembly
                     }
-                }               
+                }
             }
 
             // if we come to this point, we are all fine, return null error message
             return null;
         }
-
 
         /// <summary>
         /// Write message line depending on IsVerbose flag
@@ -493,7 +500,7 @@ namespace BamlLocalization
 
         /// <summary>
         /// Write the message depending on IsVerbose flag
-        /// </summary>        
+        /// </summary>
         internal void Write(string message)
         {
             if (IsVerbose)
@@ -514,7 +521,5 @@ namespace BamlLocalization
         EXE,
     }
 
-    #endregion    
+    #endregion
 }
-
-

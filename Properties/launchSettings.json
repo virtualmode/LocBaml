@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "LocBaml": {
+      "commandName": "Project",
+      "commandLineArgs": "-parse HelloApp.resources.dll -out:HelloApp.resources.csv"
+    }
+  }
+}

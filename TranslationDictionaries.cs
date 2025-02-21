@@ -10,27 +10,24 @@
 
 using System;
 using System.IO;
-using System.Resources;
 using System.Collections;
-using System.Globalization;
 using System.Windows;
-using System.Diagnostics;
 using System.ComponentModel;
 using System.Windows.Markup.Localizer;
 
 namespace BamlLocalization
 {
     /// <summary>
-    /// Writer to write out localizable values into CSV or tab-separated txt files.     
+    /// Writer to write out localizable values into CSV or tab-separated txt files.
     /// </summary>
-    internal static class  TranslationDictionariesWriter
+    internal static class TranslationDictionariesWriter
     {
         /// <summary>
         /// Write the localizable key-value pairs
         /// </summary>
         /// <param name="options"></param>
-        internal static void Write(LocBamlOptions options)            
-        {   
+        internal static void Write(LocBamlOptions options)
+        {
             Stream output = new FileStream(options.Output, FileMode.Create);
             InputBamlStreamList bamlStreamList = new InputBamlStreamList(options);
 
@@ -42,7 +39,7 @@ namespace BamlLocalization
                     options.Write("    ");
                     options.Write(StringLoader.Get("ProcessingBaml", bamlStreamList[i].Name));
 
-                    // Search for comment file in the same directory. The comment file has the extension to be 
+                    // Search for comment file in the same directory. The comment file has the extension to be
                     // "loc".
                     string commentFile = Path.ChangeExtension(bamlStreamList[i].Name, "loc");
                     TextReader commentStream = null;
@@ -55,6 +52,7 @@ namespace BamlLocalization
                         }
 
                         // create the baml localizer
+                        AppDomain.CurrentDomain.AssemblyResolve += LocBaml.CurrentDomain_AssemblyResolve;
                         BamlLocalizer mgr = new BamlLocalizer(
                             bamlStreamList[i].Stream,
                             new BamlLocalizabilityByReflection(options.Assemblies),
@@ -69,7 +67,7 @@ namespace BamlLocalization
                         {
                             // column 1: baml stream name
                             writer.WriteColumn(bamlStreamList[i].Name);
-                            
+
                             BamlLocalizableResourceKey key = (BamlLocalizableResourceKey) entry.Key;
                             BamlLocalizableResource resource = (BamlLocalizableResource)entry.Value;
 
@@ -97,23 +95,33 @@ namespace BamlLocalization
 
                         options.WriteLine(StringLoader.Get("Done"));
                     }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine(ex.Message);
+#if DEBUG
+                        //throw ex;
+#else
+#endif
+                    }
                     finally
                     {
+                        AppDomain.CurrentDomain.AssemblyResolve -= LocBaml.CurrentDomain_AssemblyResolve;
+
                         if (commentStream != null)
                             commentStream.Close();
                     }
                 }
-                
+
                 // close all the baml input streams, output stream is closed by writer.
-                bamlStreamList.Close();            
-            }   
+                bamlStreamList.Close();
+            }
         }
     }
 
 
     /// <summary>
-    /// Reader to read the translations from CSV or tab-separated txt file    
-    /// </summary> 
+    /// Reader to read the translations from CSV or tab-separated txt file
+    /// </summary>
     internal class TranslationDictionariesReader
     {
         /// <summary>
@@ -133,7 +141,7 @@ namespace BamlLocalization
             while (reader.ReadRow())
             {
                 rowNumber ++;
-                
+
                 // field #1 is the baml name.
                 string bamlName = reader.GetColumn(0);
 
@@ -157,19 +165,19 @@ namespace BamlLocalization
                 BamlLocalizableResourceKey resourceKey = LocBamlConst.StringToResourceKey(key);
 
                 // get the dictionary 
-                BamlLocalizationDictionary dictionary = this[bamlName];                
+                BamlLocalizationDictionary dictionary = this[bamlName];
                 if (dictionary == null)
-                {   
+                {
                     // we create one if it is not there yet.
                     dictionary = new BamlLocalizationDictionary();
-                    this[bamlName] = dictionary;                
+                    this[bamlName] = dictionary;
                 }
-                
+
                 BamlLocalizableResource resource;
-                
+
                 // the rest of the fields are either all null,
                 // or all non-null. If all null, it means the resource entry is deleted.
-                
+
                 // get the string category
                 string categoryString = reader.GetColumn(2);
                 if (categoryString == null)
@@ -189,10 +197,10 @@ namespace BamlLocalization
 
                     // now we know all are non-null. let's try to create a resource
                     resource  = new BamlLocalizableResource();
-                    
+
                     // field #3: Category
                     resource.Category = (LocalizationCategory) StringCatConverter.ConvertFrom(categoryString);
-                    
+
                     // field #4: Readable
                     resource.Readable     = (bool) BoolTypeConverter.ConvertFrom(reader.GetColumn(3));
 
@@ -210,12 +218,12 @@ namespace BamlLocalization
                         resource.Content = string.Empty;
 
                     // field > #7: Ignored.
-                }                             
+                }
 
                 // at this point, we are good.
                 // add to the dictionary.
                 dictionary.Add(resourceKey, resource);
-            }        
+            }
         }
 
         internal BamlLocalizationDictionary this[string key]
@@ -230,7 +238,7 @@ namespace BamlLocalization
         }
 
         // hashtable that maps from baml name to its ResourceDictionary
-        private Hashtable _table;                
+        private Hashtable _table;
         private static TypeConverter BoolTypeConverter  = TypeDescriptor.GetConverter(true);
         private static TypeConverter StringCatConverter = TypeDescriptor.GetConverter(LocalizationCategory.Text);
     }

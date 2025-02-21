@@ -4,7 +4,7 @@
 
 //---------------------------------------------------------------------------
 //
-// Description: LocBaml command line tool. 
+// Description: LocBaml command line tool.
 //
 //---------------------------------------------------------------------------
 
@@ -30,24 +30,24 @@ namespace BamlLocalization
 
             LocalizabilityAttribute notModifiable = new LocalizabilityAttribute(LocalizationCategory.None);
             notModifiable.Modifiability = Modifiability.Unmodifiable;
-            
+
             // not localizable CLR types
             DefinedAttributes.Add(typeof(Boolean),   notReadable);
             DefinedAttributes.Add(typeof(Byte),      notReadable);
             DefinedAttributes.Add(typeof(SByte),     notReadable);
             DefinedAttributes.Add(typeof(Char),      notReadable);
             DefinedAttributes.Add(typeof(Decimal),   notReadable);
-            DefinedAttributes.Add(typeof(Double),    notReadable);            
-            DefinedAttributes.Add(typeof(Single),    notReadable);            
-            DefinedAttributes.Add(typeof(Int32),     notReadable);            
-            DefinedAttributes.Add(typeof(UInt32),    notReadable);            
+            DefinedAttributes.Add(typeof(Double),    notReadable);
+            DefinedAttributes.Add(typeof(Single),    notReadable);
+            DefinedAttributes.Add(typeof(Int32),     notReadable);
+            DefinedAttributes.Add(typeof(UInt32),    notReadable);
             DefinedAttributes.Add(typeof(Int64),     notReadable);
-            DefinedAttributes.Add(typeof(UInt64),    notReadable);            
-            DefinedAttributes.Add(typeof(Int16),     notReadable);            
-            DefinedAttributes.Add(typeof(UInt16),    notReadable);    
+            DefinedAttributes.Add(typeof(UInt64),    notReadable);
+            DefinedAttributes.Add(typeof(Int16),     notReadable);
+            DefinedAttributes.Add(typeof(UInt16),    notReadable);
             DefinedAttributes.Add(typeof(Uri),       notModifiable);
-        }   
-        
+        }
+
         /// <summary>
         /// Get the localizability attribute for a type
         /// </summary>
@@ -64,7 +64,7 @@ namespace BamlLocalization
                 return result;
             }
             else
-            {            
+            {
                 Type targetType = type as Type;
                 if ( targetType != null && targetType.IsValueType)
                 {
@@ -72,10 +72,10 @@ namespace BamlLocalization
                     // we use this default.
                     LocalizabilityAttribute attribute = new LocalizabilityAttribute(LocalizationCategory.Inherit);
                     attribute.Modifiability           = Modifiability.Unmodifiable;
-                    return attribute;                    
+                    return attribute;
                 }
                 else
-                {    
+                {
                     return DefaultAttribute;
                 }
             }
@@ -86,8 +86,8 @@ namespace BamlLocalization
             get 
             {
                 return new LocalizabilityAttribute(LocalizationCategory.Inherit);
-            }            
-        }   
+            }
+        }
 
         private static Dictionary<object, LocalizabilityAttribute> DefinedAttributes;     // stores pre-defined attribute for types
     }
